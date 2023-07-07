@@ -155,10 +155,10 @@ class OpenProjectUtils:
 
         else:
             newWp = WorkPackage({"id": wp.id,
-                             "lockVersion": wp.lockVersion,
-                             "startDate": wp.startDate,
-                             "dueDate": wp.dueDate,
-                             "duration": wp.duration})
+                                 "lockVersion": wp.lockVersion,
+                                 "startDate": wp.startDate,
+                                 "dueDate": wp.dueDate,
+                                 "duration": wp.duration})
             # updated_wP = wpSer.update_form(updated_wp)
 
             if (current_start := _check_date(dn.data.Current_Start_Date)) != "":

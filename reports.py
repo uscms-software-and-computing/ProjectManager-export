@@ -175,23 +175,24 @@ elif area == 'S_C_Ops_Program':
 date_nodes = list(
     mpp_tree.filter_nodes(lambda x: x.data.scheduled_finish < datetime(2027, 1, 1) and mpp_tree.depth(x) == tree_depth))
 
+
 def print_fields(field_list):
     row_string = ""
     for fl in field_list:
         row_string = row_string + '"' + str(fl) + '";'
     return row_string[:-1]
 
+
 for dn in date_nodes:
     # print('"' + dn.data.name + '"' + ';' + '"' + str(dn.data.scheduled_finish) + '"' + ';' + '"' + str(dn.data.percent_complete) + '"')
-    print(print_fields([dn.data.name, dn.data.scheduled_start, dn.data.scheduled_finish, dn.data.Current_Start_Date, dn.data.Current_Finish_Date, dn.data.actual_start, dn.data.actual_finish, dn.data.percent_complete]))
+    print(print_fields([dn.data.name, dn.data.scheduled_start, dn.data.scheduled_finish, dn.data.Current_Start_Date,
+                        dn.data.Current_Finish_Date, dn.data.actual_start, dn.data.actual_finish,
+                        dn.data.percent_complete]))
     sub_tree = mpp_tree.children(dn.data.id)
     sub_tree_len = len(sub_tree)
     if sub_tree_len > 0:
         for cn in sub_tree:
-            print('--' + print_fields([cn.data.name, cn.data.scheduled_start, cn.data.scheduled_finish, cn.data.Current_Start_Date, cn.data.Current_Finish_Date, cn.data.actual_start, cn.data.actual_finish, cn.data.percent_complete]))
+            print('--' + print_fields([cn.data.name, cn.data.scheduled_start, cn.data.scheduled_finish,
+                                       cn.data.Current_Start_Date, cn.data.Current_Finish_Date, cn.data.actual_start,
+                                       cn.data.actual_finish, cn.data.percent_complete]))
             # print('--"' + cn.data.name + '"' + ';' + '"' + str(cn.data.scheduled_finish) + '"' + ';' + '"' + str(cn.data.percent_complete) + '"')
-
-
-
-
-

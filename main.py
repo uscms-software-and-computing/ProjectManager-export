@@ -59,7 +59,7 @@ if wbs_project:
     my_proSer.delete(wbs_project[0])
 
 area_id = area.lower()
-project_template = {"indentifier": area_id, "name": area}
+project_template = {"identifier": area_id, "name": area}
 
 project_json = json.dumps(project_template)
 
@@ -71,6 +71,12 @@ open_project_utils = open_project_utils.OpenProjectUtils(op, my_wpSer, area)
 
 def process_work_packages(my_mpp_tree, my_data_node, package_type="Activity", parent_wp_id=None, parent_title=None):
     # Create the current work package
+
+    # Stricter checking of a Milestone
+    # duration should not be longer than a day
+    # if current entry has milestone attribute as True and duration is longer than a day, set milestone as False to
+    # avoid milestone checks in other functions
+    #
     if my_data_node.data.milestone:
         duration = my_data_node.data.scheduled_finish - my_data_node.data.scheduled_start
         if duration.days <= 1:
