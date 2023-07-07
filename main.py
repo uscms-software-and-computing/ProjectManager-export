@@ -72,7 +72,11 @@ open_project_utils = open_project_utils.OpenProjectUtils(op, my_wpSer, area)
 def process_work_packages(my_mpp_tree, my_data_node, package_type="Activity", parent_wp_id=None, parent_title=None):
     # Create the current work package
     if my_data_node.data.milestone:
-        package_type = "Milestone"
+        duration = my_data_node.data.scheduled_finish - my_data_node.data.scheduled_start
+        if duration.days <= 1:
+            package_type = "Milestone"
+        else:
+            my_data_node.data.milestone = False
     wp = open_project_utils.create_work_package(my_data_node, package_type, parent_wp_id, parent_title)
     curr_wp = open_project_utils.update_work_package_current_dates(wp, my_data_node)
     act_wp = open_project_utils.update_work_package_actual_dates(curr_wp, my_data_node)
