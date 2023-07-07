@@ -2,9 +2,6 @@ import sys
 import re
 import treelib
 import json
-import numpy as np
-# from pyopenproject.openproject import OpenProject
-from pyopenproject.model.work_package import WorkPackage
 from dataclasses import dataclass
 from dacite import Config, from_dict, Optional
 from datetime import datetime
