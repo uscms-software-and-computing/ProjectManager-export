@@ -3,6 +3,7 @@ import re
 from pyopenproject.model.work_package import WorkPackage
 from pyopenproject.model.status import Status
 
+
 def _check_date(dn):
     if dn is not None:
         return dn.strftime('%Y-%m-%d')
@@ -48,8 +49,6 @@ class OpenProjectUtils:
         wP.customField8 = _check_date(dn.data.actual_start)
         wP.customField9 = _check_date(dn.data.actual_finish)
 
-        # aps = wpSer.find_available_projects()
-        # project = aps[0].__dict__['_links']['self']
         project = list(filter(
             lambda x: x.name == self.wbs,
             self.wpSer.find_available_projects()
@@ -70,7 +69,6 @@ class OpenProjectUtils:
             wP.__dict__["_links"]["parent"] = {'href': '/api/v3/work_packages/' + str(parent_id),
                                                'title': parent_title}
 
-        # types = list(op.get_work_package_service().find_all())
         wP = self.wpSer.create(wP)
 
         print(wP.subject)
@@ -103,7 +101,6 @@ class OpenProjectUtils:
                                  "startDate": wp.startDate,
                                  "dueDate": wp.dueDate,
                                  "duration": wp.duration})
-            # wP = wp
 
             if (actual_start := _check_date(dn.data.actual_start)) != "":
                 newWp.startDate = actual_start
@@ -133,10 +130,6 @@ class OpenProjectUtils:
                 print(start_raw_comment)
                 self.wpSer.create_activity(updated_wP, start_raw_comment)
 
-            # actSer = op.get_activity_service()
-            #
-            # actSer.update(act)
-
             return updated_wP
 
     def update_work_package_current_dates(self, wp, task_data):
@@ -165,7 +158,6 @@ class OpenProjectUtils:
                                  "startDate": wp.startDate,
                                  "dueDate": wp.dueDate,
                                  "duration": wp.duration})
-            # updated_wP = wpSer.update_form(updated_wp)
 
             if (current_start := _check_date(dn.data.Current_Start_Date)) != "":
                 newWp.startDate = current_start
@@ -199,9 +191,6 @@ class OpenProjectUtils:
 
     def update_work_package_add_note(self, wp, task_data):
         dn = task_data
-        # newWp = WorkPackage({"id": wp.id,
-        #                      "lockVersion": wp.lockVersion
-        #                      })
 
         if dn.data.notes is not None:
             print(dn.data.notes)
@@ -211,9 +200,6 @@ class OpenProjectUtils:
 
     def check_status(self, wp):
         new_wp = WorkPackage({"id": wp.id})
-
-
-        # wP = WorkPackage(self.wpSer.create_form()._embedded["payload"])
 
         my_wp = self.wpSer.find(new_wp)
         if "children" in my_wp.__dict__["_links"]:
@@ -226,9 +212,8 @@ class OpenProjectUtils:
                                           "status": {
                                               "href": '/api/v3/statuses/12'
                                           }
-                                        }
+                                      }
                                       })
-                # new_wp.__dict__["_links"]["status"]["href"] = '/api/v3/statuses/12'
                 self.wpSer.update(new_wp)
             elif 100 > progress > 0:
                 new_wp = WorkPackage({"id": my_wp.id,
@@ -248,7 +233,7 @@ class OpenProjectUtils:
                                           "status": {
                                               "href": '/api/v3/statuses/12'
                                           }
-                                        }
+                                      }
                                       })
                 self.wpSer.update(new_wp)
 
@@ -264,7 +249,5 @@ class OpenProjectUtils:
                 child_status.append(1)
             else:
                 child_status.append(0)
-        progress = int(sum(child_status)/len(child_status) * 100)
+        progress = int(sum(child_status) / len(child_status) * 100)
         return progress
-
-
