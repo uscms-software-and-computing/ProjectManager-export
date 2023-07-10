@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import re
 from pyopenproject.model.work_package import WorkPackage
@@ -20,54 +22,107 @@ class OpenProjectUtils:
 
     def create_work_package(self, task_data, package_type='Activity', parent_id=None, parent_title=None):
         dn = task_data
-        wP = WorkPackage(self.wpSer.create_form()._embedded["payload"])
 
-        wP.subject = dn.data.name
-        wP.scheduleManually = True
-        if package_type == 'Milestone':
-            wP.date = dn.data.start.strftime('%Y-%m-%d')
-        else:
-            wP.startDate = dn.data.scheduled_start.strftime('%Y-%m-%d')
-            wP.dueDate = dn.data.scheduled_finish.strftime('%Y-%m-%d')
-            bus_days = np.busday_count(wP.startDate, wP.dueDate) + 1
-            duration = 'P' + str(bus_days) + 'D'
-            if duration == 'P0D':
-                duration = 'P1D'
-            wP.duration = duration
-        # if parent_id is not None:
         if dn.data.percent_complete is not None:
-            wP.percentageDone = int(dn.data.percent_complete)
+            wp_percentageDone = int(dn.data.percent_complete)
         else:
-            wP.percentageDone = 0
-        wP.customField1 = _check_date(dn.data.Expected_Finish_Date)
-        wP.customField2 = _check_date(dn.data.Current_Start_Date)
-        wP.customField3 = dn.data.CA_Milestone_ID
-        wP.customField4 = _check_date(dn.data.Current_Finish_Date)
-        wP.customField5 = dn.data.Work_Package_ID
-        wP.customField6 = dn.data.Long_Name
-        wP.customField7 = dn.data.S_C_ID
-        wP.customField8 = _check_date(dn.data.actual_start)
-        wP.customField9 = _check_date(dn.data.actual_finish)
+            wp_percentageDone = 0
+        wp_customField1 = _check_date(dn.data.Expected_Finish_Date)
+        wp_customField2 = _check_date(dn.data.Current_Start_Date)
+        wp_customField3 = dn.data.CA_Milestone_ID
+        wp_customField4 = _check_date(dn.data.Current_Finish_Date)
+        wp_customField5 = dn.data.Work_Package_ID
+        wp_customField6 = dn.data.Long_Name
+        wp_customField7 = dn.data.S_C_ID
+        wp_customField8 = _check_date(dn.data.actual_start)
+        wp_customField9 = _check_date(dn.data.actual_finish)
 
         project = list(filter(
             lambda x: x.name == self.wbs,
             self.wpSer.find_available_projects()
         ))[0].__dict__['_links']['self']
-        wP._links["project"]["href"] = project['href']
 
         work_package_type = list(filter(
             lambda x: x.name == package_type,
             self.op.get_type_service().find_all()
         ))[0].__dict__['_links']['self']['href']
-        wP.__dict__["_links"]["type"]["href"] = work_package_type
-        if wP.percentageDone == 100 and package_type != "Activity":
-            wP.__dict__["_links"]["status"]["href"] = '/api/v3/statuses/12'
-        if 100 > wP.percentageDone > 0:
-            wP.__dict__["_links"]["status"]["href"] = '/api/v3/statuses/2'
 
+        wp_status = '/api/v3/statuses/1'
+        if wp_percentageDone == 100 and package_type != "Activity":
+            wp_status = '/api/v3/statuses/12'  # Closed
+        if 100 > wp_percentageDone > 0:
+            wp_status = '/api/v3/statuses/7'  # In Progress
+
+        wp_parent_id = None
+        wp_parent_title = None
         if parent_id:
-            wP.__dict__["_links"]["parent"] = {'href': '/api/v3/work_packages/' + str(parent_id),
-                                               'title': parent_title}
+            wp_parent_id = '/api/v3/work_packages/' + str(parent_id)
+            wp_parent_title = parent_title
+
+        wp_json = {"subject": dn.data.name,
+                   "description": {"format": "markdown", "raw": "", "html": ""},
+                   "scheduleManually": True,
+                   "estimatedTime": None,
+                   "ignoreNonWorkingDays": False,
+                   "percentageDone": wp_percentageDone,
+                   "_links": {
+                       "category": {
+                           "href": None
+                       },
+                       "type": {
+                           "href": work_package_type
+                       },
+                       "priority": {
+                           "href": "/api/v3/priorities/8",
+                           "title": "Normal"
+                       },
+                       "project": {
+                           "href": project['href']
+                       },
+                       "status": {
+                           "href": wp_status,
+                       },
+                       "responsible": {
+                           "href": None
+                       },
+                       "assignee": {
+                           "href": None
+                       },
+                       "version": {
+                           "href": None
+                       },
+                       "parent": {
+                           "href": wp_parent_id,
+                           "title": wp_parent_title
+                       }
+                   },
+                   "customField1": wp_customField1,
+                   "customField2": wp_customField2,
+                   "customField3": wp_customField3,
+                   "customField4": wp_customField4,
+                   "customField5": wp_customField5,
+                   "customField6": wp_customField6,
+                   "customField7": wp_customField7,
+                   "customField8": wp_customField8,
+                   "customField9": wp_customField9
+                   }
+
+        if package_type == 'Milestone':
+            wp_date = dn.data.start.strftime('%Y-%m-%d')
+            wp_json["date"] = wp_date
+        else:
+            wp_startDate = dn.data.scheduled_start.strftime('%Y-%m-%d')
+            wp_dueDate = dn.data.scheduled_finish.strftime('%Y-%m-%d')
+            bus_days = np.busday_count(wp_startDate, wp_dueDate) + 1
+            duration = 'P' + str(bus_days) + 'D'
+            if duration == 'P0D':
+                duration = 'P1D'
+            wp_json["duration"] = duration
+            wp_json["startDate"] = wp_startDate
+            wp_json["dueDate"] = wp_dueDate
+
+        test_json = json.dumps(wp_json)
+        wP = WorkPackage(json.loads(test_json))
 
         wP = self.wpSer.create(wP)
 
@@ -210,7 +265,7 @@ class OpenProjectUtils:
                                       "lockVersion": my_wp.lockVersion,
                                       "_links": {
                                           "status": {
-                                              "href": '/api/v3/statuses/12'
+                                              "href": '/api/v3/statuses/12'  # Closed
                                           }
                                       }
                                       })
@@ -220,7 +275,7 @@ class OpenProjectUtils:
                                       "lockVersion": my_wp.lockVersion,
                                       "_links": {
                                           "status": {
-                                              "href": '/api/v3/statuses/7'
+                                              "href": '/api/v3/statuses/7'  # In Progress
                                           }
                                       }
                                       })
@@ -231,7 +286,7 @@ class OpenProjectUtils:
                                       "lockVersion": my_wp.lockVersion,
                                       "_links": {
                                           "status": {
-                                              "href": '/api/v3/statuses/12'
+                                              "href": '/api/v3/statuses/12'  # Closed
                                           }
                                       }
                                       })
