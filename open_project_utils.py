@@ -2,8 +2,6 @@ import numpy as np
 import re
 from pyopenproject.model.work_package import WorkPackage
 from pyopenproject.model.status import Status
-from pyopenproject.api_connection.requests.post_request import PostRequest
-
 
 def _check_date(dn):
     if dn is not None:
