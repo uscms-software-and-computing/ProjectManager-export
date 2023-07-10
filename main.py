@@ -98,4 +98,5 @@ def process_work_packages(my_mpp_tree, my_data_node, package_type="Activity", pa
 
 # Usage:
 for data_node in date_nodes:
-    process_work_packages(mpp_tree, data_node)
+    new_wp = process_work_packages(mpp_tree, data_node)
+    open_project_utils.check_status(new_wp)
