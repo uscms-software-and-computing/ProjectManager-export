@@ -1,5 +1,8 @@
 import numpy as np
+import re
 from pyopenproject.model.work_package import WorkPackage
+from pyopenproject.model.status import Status
+from pyopenproject.api_connection.requests.post_request import PostRequest
 
 
 def _check_date(dn):
@@ -32,11 +35,11 @@ class OpenProjectUtils:
             if duration == 'P0D':
                 duration = 'P1D'
             wP.duration = duration
-        if parent_id is not None:
-            if dn.data.percent_complete is not None:
-                wP.percentageDone = int(dn.data.percent_complete)
-            else:
-                wP.percentageDone = 0
+        # if parent_id is not None:
+        if dn.data.percent_complete is not None:
+            wP.percentageDone = int(dn.data.percent_complete)
+        else:
+            wP.percentageDone = 0
         wP.customField1 = _check_date(dn.data.Expected_Finish_Date)
         wP.customField2 = _check_date(dn.data.Current_Start_Date)
         wP.customField3 = dn.data.CA_Milestone_ID
@@ -60,6 +63,11 @@ class OpenProjectUtils:
             self.op.get_type_service().find_all()
         ))[0].__dict__['_links']['self']['href']
         wP.__dict__["_links"]["type"]["href"] = work_package_type
+        if wP.percentageDone == 100 and package_type != "Activity":
+            wP.__dict__["_links"]["status"]["href"] = '/api/v3/statuses/12'
+        if 100 > wP.percentageDone > 0:
+            wP.__dict__["_links"]["status"]["href"] = '/api/v3/statuses/2'
+
         if parent_id:
             wP.__dict__["_links"]["parent"] = {'href': '/api/v3/work_packages/' + str(parent_id),
                                                'title': parent_title}
@@ -202,3 +210,63 @@ class OpenProjectUtils:
             self.wpSer.create_activity(wp, dn.data.notes)
 
         return wp
+
+    def check_status(self, wp):
+        new_wp = WorkPackage({"id": wp.id})
+
+
+        # wP = WorkPackage(self.wpSer.create_form()._embedded["payload"])
+
+        my_wp = self.wpSer.find(new_wp)
+        if "children" in my_wp.__dict__["_links"]:
+            print("Has Children ")
+            progress = self.check_wp_child_status(my_wp.__dict__["_links"]["children"])
+            if progress == 100:
+                new_wp = WorkPackage({"id": my_wp.id,
+                                      "lockVersion": my_wp.lockVersion,
+                                      "_links": {
+                                          "status": {
+                                              "href": '/api/v3/statuses/12'
+                                          }
+                                        }
+                                      })
+                # new_wp.__dict__["_links"]["status"]["href"] = '/api/v3/statuses/12'
+                self.wpSer.update(new_wp)
+            elif 100 > progress > 0:
+                new_wp = WorkPackage({"id": my_wp.id,
+                                      "lockVersion": my_wp.lockVersion,
+                                      "_links": {
+                                          "status": {
+                                              "href": '/api/v3/statuses/7'
+                                          }
+                                      }
+                                      })
+                self.wpSer.update(new_wp)
+        else:
+            if my_wp.percentageDone == 100:
+                new_wp = WorkPackage({"id": my_wp.id,
+                                      "lockVersion": my_wp.lockVersion,
+                                      "_links": {
+                                          "status": {
+                                              "href": '/api/v3/statuses/12'
+                                          }
+                                        }
+                                      })
+                self.wpSer.update(new_wp)
+
+    def check_wp_child_status(self, children):
+        regex = r"\/(\d+)"
+        child_status = []
+        for child in children:
+            id_string = child["href"]
+            child_id = re.findall(regex, id_string)[0]
+            child_wp = WorkPackage({"id": child_id})
+            child_wp = self.wpSer.find(child_wp)
+            if child_wp.percentageDone == 100:
+                child_status.append(1)
+            else:
+                child_status.append(0)
+        progress = int(sum(child_status)/len(child_status) * 100)
+        return progress
+
+
