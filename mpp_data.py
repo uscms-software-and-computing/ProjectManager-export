@@ -124,7 +124,6 @@ class MppData:
 
             parent_key = task['parent_task_unique_id']
             task_id = task['id']
-            task_name = ""
             if 'name' in task:
                 task_name = task['name'] + " ID: " + str(task['id'])
             else:
