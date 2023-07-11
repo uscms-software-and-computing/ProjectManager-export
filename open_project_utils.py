@@ -36,6 +36,8 @@ class OpenProjectUtils:
         wp_customField7 = dn.data.S_C_ID
         wp_customField8 = _check_date(dn.data.actual_start)
         wp_customField9 = _check_date(dn.data.actual_finish)
+        wp_customField10 = dn.data.KPI_Value
+        wp_customField11 = dn.data.Target
 
         project = list(filter(
             lambda x: x.name == self.wbs,
@@ -104,7 +106,9 @@ class OpenProjectUtils:
                    "customField6": wp_customField6,
                    "customField7": wp_customField7,
                    "customField8": wp_customField8,
-                   "customField9": wp_customField9
+                   "customField9": wp_customField9,
+                   "customField10": wp_customField10,
+                   "customField11": wp_customField11
                    }
 
         if package_type == 'Milestone':
