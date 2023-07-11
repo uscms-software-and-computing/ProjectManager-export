@@ -58,6 +58,10 @@ wbs_project = my_proSer.find_all([Filter("name", "=", [area])])
 if wbs_project:
     my_proSer.delete(wbs_project[0])
 
+# Wait for Openproject to report project has been deleted - deletion is async, so it takes some time
+while my_proSer.find_all([Filter("name", "=", [area])]):
+    print("Waiting for deletion of existing project")
+
 area_id = area.lower()
 project_template = {"identifier": area_id, "name": area}
 
