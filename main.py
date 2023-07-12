@@ -1,5 +1,7 @@
 import configparser
 import json
+import time
+
 import mpp_data
 import sys
 from pyopenproject.openproject import OpenProject
@@ -43,7 +45,8 @@ date_nodes = list(
     mpp_tree.filter_nodes(lambda x: x.data.scheduled_finish < datetime(2027, 1, 1) and mpp_tree.depth(x) == tree_depth))
 
 config = configparser.ConfigParser()
-config.read('ProjectManager-export.ini')
+# config.read('ProjectManager-export.ini')
+config.read('Vanderbilt-openproject.ini')
 url = config['API Values']['url']
 api_key = config['API Values']['api_key']
 
@@ -61,6 +64,7 @@ if wbs_project:
 # Wait for Openproject to report project has been deleted - deletion is async, so it takes some time
 while my_proSer.find_all([Filter("name", "=", [area])]):
     print("Waiting for deletion of existing project")
+    time.sleep(5)
 
 area_id = area.lower()
 project_template = {"identifier": area_id, "name": area}
