@@ -4,6 +4,7 @@ import numpy as np
 import re
 from pyopenproject.model.work_package import WorkPackage
 from pyopenproject.model.status import Status
+from datetime import datetime
 
 
 def _check_date(dn):
@@ -117,7 +118,9 @@ class OpenProjectUtils:
         else:
             wp_startDate = dn.data.scheduled_start.strftime('%Y-%m-%d')
             wp_dueDate = dn.data.scheduled_finish.strftime('%Y-%m-%d')
-            bus_days = np.busday_count(wp_startDate, wp_dueDate) + 1
+            # bus_days = np.busday_count(wp_startDate, wp_dueDate) + 1
+            date_diff = dn.data.scheduled_finish - dn.data.scheduled_start
+            bus_days = date_diff.days + 1
             duration = 'P' + str(bus_days) + 'D'
             if duration == 'P0D':
                 duration = 'P1D'
@@ -171,7 +174,9 @@ class OpenProjectUtils:
                 print("Error in Actual Dates - " + wp.subject)
                 return wp
 
-            bus_days = np.busday_count(newWp.startDate, newWp.dueDate) + 1
+            date_diff = datetime.strptime(newWp.dueDate, '%Y-%m-%d') - datetime.strptime(newWp.startDate, '%Y-%m-%d')
+            bus_days = date_diff.days + 1
+            # bus_days = np.busday_count(newWp.startDate, newWp.dueDate) + 1
             duration = 'P' + str(bus_days) + 'D'
             if duration == 'P0D':
                 duration = 'P1D'
@@ -228,7 +233,9 @@ class OpenProjectUtils:
                 print("Error in dates - " + wp.subject)
                 return wp
 
-            bus_days = np.busday_count(newWp.startDate, newWp.dueDate) + 1
+            date_diff = datetime.strptime(newWp.dueDate, '%Y-%m-%d') - datetime.strptime(newWp.startDate, '%Y-%m-%d')
+            bus_days = date_diff.days + 1
+            # bus_days = np.busday_count(newWp.startDate, newWp.dueDate) + 1
             duration = 'P' + str(bus_days) + 'D'
             if duration == 'P0D':
                 duration = 'P1D'

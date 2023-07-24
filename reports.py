@@ -165,6 +165,8 @@ tree_depth = 0
 
 if area == 'WBS1':
     tree_depth = 1
+elif area == 'WBS2':
+    tree_depth = 1;
 elif area == 'WBS3':
     tree_depth = 1
 elif area == 'WBS4':
