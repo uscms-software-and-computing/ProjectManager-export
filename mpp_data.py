@@ -15,7 +15,7 @@ jpype.startJVM("-Dlog4j2.loggerContextFactory=org.apache.logging.log4j.simple.Si
 from net.sf.mpxj.reader import UniversalProjectReader
 from net.sf.mpxj.json import JsonWriter
 
-
+# dataclass to store the data from the MPP file
 @dataclass
 class TaskClass:
     active: Optional[bool]
@@ -88,11 +88,13 @@ class TaskClass:
 
 class MppData:
 
+    # initialize the MppData object
     def __init__(self, input_file_name, json_output_file):
         self.input_file_name = input_file_name
         self.json_output_file = json_output_file
         self.mpp_data = None
 
+    # convert the MPP data to JSON
     def convert_mpp_to_json(self):
         project = UniversalProjectReader().read(self.input_file_name)
         writer = JsonWriter()
@@ -102,6 +104,7 @@ class MppData:
             # self.json_mpp_data = json.load(json_mpp_data)
             self.mpp_data = json.load(json_mpp_data)
 
+    # create the tree structure from the JSON file
     def create_project_tree(self):
         custom_fields = {}
 

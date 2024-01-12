@@ -1,3 +1,9 @@
+#
+# This generates report based on an earlier iteration of this code
+# Only extracts data from MPP file and does no importing of code into OpenProject
+# Developed quickly using other pieces of this codebase to generate a quick report
+# Use at your own risk!
+#
 import sys
 import re
 import treelib
@@ -18,7 +24,7 @@ from net.sf.mpxj.json import JsonWriter
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-
+# dataclass to store the data from the MPP file
 @dataclass
 class TaskClass:
     active: Optional[bool]
@@ -88,14 +94,14 @@ class TaskClass:
     work_variance: Optional[int]
     Work_Package_ID: Optional[str]
 
-
+# convert mpp file to JSON
 def convert_mpp_to_json(mpp_file):
     project = UniversalProjectReader().read(mpp_file)
     writer = JsonWriter()
     writer.write(project, json_output_file)
     jpype.shutdownJVM()
 
-
+# create a tree from the JSON file 
 def create_project_tree(mpp_data):
     custom_fields = {}
 
@@ -133,7 +139,7 @@ def create_project_tree(mpp_data):
 
     return tree
 
-
+# check the dates for formatting
 def check_date(dn):
     if dn is not None:
         return dn.strftime('%Y-%m-%d')
