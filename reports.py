@@ -3,7 +3,8 @@ import re
 import treelib
 import json
 from dataclasses import dataclass
-from dacite import Config, from_dict, Optional
+from dacite import Config, from_dict
+from typing import Optional
 from datetime import datetime
 from dateutil.parser import *
 import warnings

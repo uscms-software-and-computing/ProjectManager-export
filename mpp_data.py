@@ -2,7 +2,8 @@ import datetime
 import json
 import re
 from dataclasses import dataclass
-from dacite import Config, from_dict, Optional
+from dacite import Config, from_dict
+from typing import Optional
 from datetime import datetime
 from typing import Any
 import treelib

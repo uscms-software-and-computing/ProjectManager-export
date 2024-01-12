@@ -99,6 +99,18 @@ class OpenProjectUtils:
                            "title": wp_parent_title
                        }
                    },
+                   # changing mapping for production - there has to be a better way!!!
+                   # "customField3": wp_customField1,
+                   # "customField4": wp_customField2,
+                   # "customField5": wp_customField3,
+                   # "customField6": wp_customField4,
+                   # "customField7": wp_customField5,
+                   # "customField8": wp_customField6,
+                   # "customField9": wp_customField7,
+                   # "customField12": wp_customField8,
+                   # "customField13": wp_customField9,
+                   # "customField14": wp_customField10,
+                   # "customField15": wp_customField11
                    "customField1": wp_customField1,
                    "customField2": wp_customField2,
                    "customField3": wp_customField3,
@@ -115,6 +127,7 @@ class OpenProjectUtils:
         if package_type == 'Milestone':
             wp_date = dn.data.start.strftime('%Y-%m-%d')
             wp_json["date"] = wp_date
+            print(wp_date)
         else:
             wp_startDate = dn.data.scheduled_start.strftime('%Y-%m-%d')
             wp_dueDate = dn.data.scheduled_finish.strftime('%Y-%m-%d')
@@ -127,11 +140,16 @@ class OpenProjectUtils:
             wp_json["duration"] = duration
             wp_json["startDate"] = wp_startDate
             wp_json["dueDate"] = wp_dueDate
+            print(wp_startDate, wp_dueDate)
 
         test_json = json.dumps(wp_json)
         wP = WorkPackage(json.loads(test_json))
 
-        wP = self.wpSer.create(wP)
+        try:
+            wP = self.wpSer.create(wP)
+        except:
+            print(package_type)
+            print(wP)
 
         print(wP.subject)
 
